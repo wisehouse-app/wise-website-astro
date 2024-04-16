@@ -20,7 +20,6 @@ RUN npm install --production=false
 
 FROM build-deps AS build
 COPY . .
-COPY .env .env
 RUN npm run build
 
 FROM base AS runtime
