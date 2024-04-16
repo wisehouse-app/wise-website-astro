@@ -21,7 +21,7 @@ RUN npm install --production=false
 FROM build-deps AS build
 COPY . .
 COPY .env .env
-RUN API_URL=$API_URL WISEHOUSE_API_KEY=$WISEHOUSE_API_KEY npm run build
+RUN npm run build
 
 FROM base AS runtime
 COPY --from=prod-deps /app/node_modules ./node_modules
@@ -34,39 +34,3 @@ EXPOSE 3000
 ENV PORT 3000
 
 CMD node ./dist/server/entry.mjs
-
-
-
-
-
-
-
-# # Use an official Node.js runtime as the base image
-# FROM node:lts-alpine AS base
-# ARG WISEHOUSE_API_KEY
-# ARG API_URL
-# ENV WISEHOUSE_API_KEY=$WISEHOUSE_API_KEY
-# ENV API_URL=$API_URL
-# # Set the working directory in the container
-# WORKDIR /app
-
-# # Copy the package.json and package-lock.json files
-# COPY package*.json ./
-
-# # Install project dependencies
-# RUN npm install
-
-# # Copy the .env file into the image
-# COPY .env .env
-
-# # Copy the rest of the application source code
-# COPY . .
-
-# # Build your Astro app
-# # RUN API_URL=$API_URL WISEHOUSE_API_KEY=$WISEHOUSE_API_KEY npm run build
-
-# # Expose the port your app will run on (assuming it's 3000)
-# EXPOSE 3000
-
-# # Start your Astro app
-# # CMD [ "npm", "start" ]

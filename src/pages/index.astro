@@ -8,6 +8,7 @@ import MainLayout from "../layouts/MainLayout.astro";
 import type { Index } from "../utils/types";
 import type WiseHouseError from "../utils/wise_house_error";
 import CardsContainer from "../components/CardsContainer.astro";
+export const prerender = false;
 
 let latestListings: Index[] = [];
 let wisehouse_key = import.meta.env.WISEHOUSE_API_KEY;
