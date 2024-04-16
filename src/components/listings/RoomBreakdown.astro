@@ -1,0 +1,45 @@
+---
+import type { Room } from "../../utils/types";
+
+interface Props {
+    rooms: Room[] | undefined;
+}
+
+const { rooms } = Astro.props;
+---
+
+<style>
+    div#room-breakdown {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    div#room-breakdown div {
+        padding: 0.8em;
+        margin: 0.2em;
+        text-align: center;
+    }
+    div#room-breakdown div p:first-child {
+        text-transform: capitalize;
+        font-size: 0.8em;
+        opacity: 0.5;
+        font-weight: bold;
+        margin: 0;
+        margin-bottom: 0.2em;
+    }
+    div#room-breakdown div p {
+        margin: 0;
+    }
+</style>
+<div id="room-breakdown">
+    {
+        rooms?.map((room: Room) => {
+            return (
+                <div>
+                    <p>{room.name}</p>
+                    <p>{room.area_m2}m²</p>
+                </div>
+            );
+        })
+    }
+</div>

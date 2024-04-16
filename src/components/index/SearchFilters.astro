@@ -1,0 +1,204 @@
+---
+import BathroomIcon from "../icons/BathroomIcon.astro";
+import TenureIcon from "../icons/TenureIcon.astro";
+import LocationIcon from "../icons/LocationIcon.astro";
+import PriceIcon from "../icons/PriceIcon.astro";
+import BedroomIcon from "../icons/BedroomIcon.astro";
+---
+
+<style>
+    div.selector {
+        padding: 0.5em 0.2em 0.5em 0.2em;
+        background: inherit;
+        color: inherit;
+        width: fit-content;
+    }
+    div.selector:first-child {
+        border-top-left-radius: inherit;
+    }
+    div.selector:last-child {
+        border-top-right-radius: inherit;
+    }
+    div.selector p {
+        margin: 0;
+        font-size: 0.75em;
+        opacity: 0.7;
+        font-weight: lighter;
+    }
+    select,
+    option {
+        width: fit-content;
+        background-color: inherit;
+        font-size: 0.9em;
+        padding: 0.2em 0.2em 0.2em 0.1em;
+        color: inherit;
+        border: none;
+        border-radius: inherit;
+    }
+
+    div#search-filters {
+        display: flex;
+        background: black;
+        color: white;
+        justify-content: space-between;
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+        z-index: 2;
+    }
+    span.icon {
+        font-size: 1.1em;
+        margin: 0;
+        padding: 0;
+    }
+    @media only screen and (max-width: 750px) {
+        div.selector {
+            text-align: center;
+            font-size: 0.9em;
+        }
+        div.selector * {
+            display: block;
+        }
+        div#min-bathrooms-section,
+        div#min-bedrooms-section {
+            display: none;
+        }
+    }
+</style>
+<div id="search-filters">
+    <div class="selector">
+        <span class="icon"><LocationIcon /></span>
+        <select name="" id="location">
+            <option value="">Anywhere</option>
+            <option value="karori">Karori</option>
+            <option value="te_aro">Te Aro</option>
+            <option value="aro_valley">Aro Valley</option>
+        </select>
+    </div>
+
+    <div class="selector">
+        <span class="icon"><PriceIcon /> </span>
+        <select name="" id="min-price">
+            <option value="100000">from 100k</option>
+            <option value="150000">from 150k</option>
+            <option value="200000">from 200k</option>
+            <option value="250000">from 250k</option>
+            <option value="300000">from 300k</option>
+            <option value="350000">from 350k</option>
+            <option value="400000">from 400k</option>
+            <option value="450000">from 450k</option>
+            <option value="500000">from 500k</option>
+            <option value="550000">from 550k</option>
+            <option value="600000">from 600k</option>
+            <option value="650000">from 650k</option>
+            <option value="600000">from 700k</option>
+            <option value="650000">from 750k</option>
+            <option value="600000">from 800k</option>
+            <option value="650000">from 850k</option>
+            <option value="600000">from 900k</option>
+            <option value="650000">from 950k</option>
+            <option value="1000000">from 1M</option>
+            <option value="1100000">from 1.1M</option>
+            <option value="1200000">from 1.2M</option>
+            <option value="1300000">from 1.3M</option>
+            <option value="1400000">from 1.4M</option>
+            <option value="1500000">from 1.5M</option>
+            <option value="1600000">from 1.6M</option>
+            <option value="1700000">from 1.7M</option>
+            <option value="1800000">from 1.8M</option>
+            <option value="1900000">from 1.9M</option>
+            <option value="2000000">from 2M</option>
+            <option value="2250000">from 2.25M</option>
+            <option value="2500000">from 2.5M</option>
+            <option value="2750000">from 2.75M</option>
+            <option value="3000000">from 3M</option>
+            <option value="3500000">from 3.5M</option>
+            <option value="4000000">from 4M</option>
+            <option value="5000000">from 5M</option>
+            <option value="6000000">from 6M</option>
+            <option value="7000000">from 7M</option>
+            <option value="8000000">from 8M</option>
+            <option value="9000000">from 9M</option>
+            <option value="10000000">from 10M</option>
+        </select>
+
+        <select name="" id="max-price">
+            <option value="100000">to 100k</option>
+            <option value="150000">to 150k</option>
+            <option value="200000">to 200k</option>
+            <option value="250000">to 250k</option>
+            <option value="300000">to 300k</option>
+            <option value="350000">to 350k</option>
+            <option value="400000">to 400k</option>
+            <option value="450000">to 450k</option>
+            <option value="500000">to 500k</option>
+            <option value="550000">to 550k</option>
+            <option value="600000">to 600k</option>
+            <option value="650000">to 650k</option>
+            <option value="600000">to 700k</option>
+            <option value="650000">to 750k</option>
+            <option value="600000">to 800k</option>
+            <option value="650000">to 850k</option>
+            <option value="600000">to 900k</option>
+            <option value="650000">to 950k</option>
+            <option value="1000000">to 1M</option>
+            <option value="1100000">to 1.1M</option>
+            <option value="1200000">to 1.2M</option>
+            <option value="1300000">to 1.3M</option>
+            <option value="1400000">to 1.4M</option>
+            <option value="1500000">to 1.5M</option>
+            <option value="1600000">to 1.6M</option>
+            <option value="1700000">to 1.7M</option>
+            <option value="1800000">to 1.8M</option>
+            <option value="1900000">to 1.9M</option>
+            <option value="2000000">to 2M</option>
+            <option value="2250000">to 2.25M</option>
+            <option value="2500000">to 2.5M</option>
+            <option value="2750000">to 2.75M</option>
+            <option value="3000000">to 3M</option>
+            <option value="3500000">to 3.5M</option>
+            <option value="4000000">to 4M</option>
+            <option value="5000000">to 5M</option>
+            <option value="6000000">to 6M</option>
+            <option value="7000000">to 7M</option>
+            <option value="8000000">to 8M</option>
+            <option value="9000000">to 9M</option>
+            <option selected value="10000000">to 10M</option>
+        </select>
+    </div>
+    <div id="min-bedrooms-section" class="selector">
+        <span class="icon"><BedroomIcon /></span>
+        <select style="display:inline;" name="" id="min-bedrooms">
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
+            <option value="6">6+</option>
+            <option value="7">7+</option>
+            <option value="8">8+</option>
+            <option value="9">9+</option>
+        </select>
+    </div>
+    <div id="min-bathrooms-section" class="selector">
+        <span class="icon"><BathroomIcon /></span>
+        <select name="" id="min-bathrooms">
+            <option value="1">1+</option>
+            <option value="2">2+</option>
+            <option value="3">3+</option>
+            <option value="4">4+</option>
+            <option value="5">5+</option>
+            <option value="6">6+</option>
+            <option value="7">7+</option>
+            <option value="8">8+</option>
+            <option value="9">9+</option>
+        </select>
+    </div>
+    <div class="selector">
+        <span class="icon"><TenureIcon /></span>
+        <select name="" id="contract">
+            <option value="">Rent or Buy</option>
+            <option value="rent">For Rent</option>
+            <option value="buy">For Sale</option>
+        </select>
+    </div>
+</div>

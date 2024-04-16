@@ -1,0 +1,51 @@
+---
+interface Props {
+    title?: string;
+    avatar?: string;
+    canonical?: string;
+
+    price?: number;
+    n_bedrooms?: number;
+    n_bathrooms?: number;
+    area_sqm?: number;
+    land_area_sqm?: number;
+
+    location?: string;
+    buy_rent?: "buy" | "rent";
+    property_type?: string;
+}
+
+const {
+    title,
+    avatar,
+    canonical,
+    price,
+    n_bedrooms,
+    n_bathrooms,
+    area_sqm,
+    land_area_sqm,
+
+    location,
+    buy_rent,
+    property_type,
+} = Astro.props;
+---
+
+<property-card
+    title={title}
+    avatar={avatar}
+    canonical={canonical}
+    price={price}
+    n_bedrooms={n_bedrooms}
+    n_bathrooms={n_bathrooms}
+    area_sqm={area_sqm}
+    land_area_sqm={land_area_sqm}
+    location={location}
+    buy_rent={buy_rent}
+    property_type={property_type}></property-card>
+<script>
+    import PropertyCard from "../components/web/PropertyCard";
+    if (!customElements.get("property-card")) {
+        customElements.define("property-card", PropertyCard);
+    }
+</script>

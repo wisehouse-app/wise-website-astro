@@ -1,0 +1,80 @@
+---
+import getDynamicListing from "../../utils/dynamicListing";
+import type { PropertyData, Room } from "../../utils/types";
+import getListingData from "../../utils/getListingData";
+import ListingLayout from "../../layouts/ListingLayout.astro";
+
+export const prerender = false;
+
+// GET MODEL ID OR FAIL!
+const { property_id: propID } = Astro.params;
+if (!propID) {
+    throw new Error("Could not find property id.");
+}
+const sessionID: string | null = Astro.url.searchParams.get("session");
+
+// Arguibly, this only makes sense if your index has an associated Wise House model.
+// You can know a priori whether that is the case by checking the `index.associated_model` field. If
+// present, then it is there.
+const propertyData: PropertyData | undefined = await getListingData(propID);
+if (!propertyData) {
+    throw new Error("Data not found? We were expecting data!");
+}
+
+/* PROCESS DESCRIPTION */
+const description: string[] | undefined =
+    propertyData.index?.listing_text?.split("\\n");
+
+let dynamicDecription: string[] | undefined = undefined;
+if (propertyData.index?.description) {
+    dynamicDecription = await getDynamicListing(propID, sessionID);
+}
+
+// Rooms
+const nstoreys = propertyData?.summary?.nstoreys;
+let storeyBreakdown: Room[][] | undefined = undefined;
+if (nstoreys) {
+    storeyBreakdown = Array.apply(null, Array(nstoreys)).map((x) => []);
+    propertyData?.summary?.rooms.forEach((r: Room) => {
+        if (r.storey && storeyBreakdown) {
+            storeyBreakdown![r.storey - 1].push(r);
+        } else {
+            storeyBreakdown = undefined;
+        }
+    });
+}
+
+/* GET SOME SIZE DATA */
+let nBedrooms: number | undefined = propertyData?.index.n_bedrooms;
+let nBathrooms: number | undefined = propertyData?.index.n_bathrooms;
+if (!nBedrooms || !nBathrooms) {
+    nBedrooms = 0;
+    nBathrooms = 0;
+    propertyData?.summary?.rooms.forEach((r: Room) => {
+        if (!r.purposes) {
+        } else {
+            if (r.purposes!.indexOf("Bedroom") >= 0) {
+                nBedrooms! += 1;
+            }
+            if (r.purposes!.indexOf("Bathroom") >= 0) {
+                nBathrooms! += 1;
+            }
+        }
+    });
+}
+---
+
+<ListingLayout
+    images={propertyData?.summary?.images}
+    title={propertyData?.title}
+    price={propertyData?.index?.price}
+    area_sqm={propertyData?.summary?.total_area_m2}
+    nstoreys={propertyData?.summary?.nstoreys}
+    n_bedrooms={nBedrooms}
+    n_bathrooms={nBathrooms}
+    dynamic_description={dynamicDecription}
+    description={description}
+    associated_model={propertyData.index.associated_model}
+    avatar={propertyData.index.avatar}
+    storey_breakdown={storeyBreakdown}
+/>

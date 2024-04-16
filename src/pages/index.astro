@@ -1,0 +1,512 @@
+---
+import * as card_data_db from "./api/own_database/card_data";
+
+import type { CardData } from "./api/own_database/card_data";
+import SearchBar from "../components/index/SearchBar.astro";
+import MainLayout from "../layouts/MainLayout.astro";
+
+import type { Index } from "../utils/types";
+import type WiseHouseError from "../utils/wise_house_error";
+import CardsContainer from "../components/CardsContainer.astro";
+
+let latestListings: Index[] = [];
+let wisehouse_key = import.meta.env.WISEHOUSE_API_KEY;
+await fetch("https://api1-2v6xvmx6xq-as.a.run.app/index?n=12", {
+    headers: {
+        "WiseHouse-API-Key": wisehouse_key,
+    },
+})
+    .then(async (response) => {
+        if (response.ok) {
+            const data: Index[] = await response.json();
+            latestListings = data;
+        } else {
+            const err: WiseHouseError = await response.json();
+            throw new Error(`when ${err.moment}: ${err.msg}`);
+        }
+    })
+    .catch((error) => {
+        throw new Error(error);
+    });
+---
+
+<MainLayout>
+    <style>
+        html {
+            font-family: "Montserrat Variable", sans-serif;
+            font-weight: 300;
+        }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            padding-bottom: 3rem;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        div#search-hero {
+            background-image: url("/kitchen.jpg");
+            height: 80vh;
+            max-height: 80vh;
+            background-size: cover;
+            background-position-y: bottom;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 0.2em;
+        }
+
+        div#search-hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        #messages-container {
+            font-size: 1rem;
+            z-index: 10;
+            margin: 5px auto 0 auto;
+            transition: height 0.4s ease-in-out;
+            width: 80vw;
+            border-radius: 0.5em;
+            background-color: transparent;
+            position: relative;
+            height: 35vh;
+            overflow-y: scroll;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+            padding: 1em;
+            box-sizing: border-box;
+        }
+        #messages-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        @media only screen and (max-width: 600px) {
+            #messages-container {
+                width: 95vw;
+            }
+        }
+    </style>
+
+    <div id="search-hero">
+        <div id="messages-container"></div>
+        <SearchBar />
+    </div>
+    <div id="other-content">
+        <div style="width:100%;text-align:center;margin-bottom: 2em;">
+            <p style="font-size:1.4rem;margin-bottom:0;">Our latest listings</p>
+            <svg
+                stroke="currentColor"
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 16 16"
+                height="1em"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+                ><path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M7.976 10.072l4.357-4.357.62.618L8.284 11h-.618L3 6.333l.619-.618 4.357 4.357z"
+                ></path></svg
+            >
+        </div>
+        <CardsContainer>
+            {
+                latestListings.map(async (d: Index) => {
+                    if (d.associated_model) {
+                        d.canonical = `/property/wh_hosted_${d.id}`;
+                    } else {
+                        // Query your own database for the data... we are simulating here
+                        const response = await card_data_db.GET({
+                            params: { id: d.id },
+                        });
+                        if (response.ok) {
+                            const cardData: CardData = await response.json();
+                            d.title = cardData.title;
+                            d.avatar = cardData.avatar;
+                        }
+
+                        d.canonical = `/property/self_hosted_${d.id}`;
+                    }
+                    return (
+                        <property-card
+                            id={d.id}
+                            title={d.title}
+                            canonical={d.canonical}
+                            avatar={d.avatar}
+                            price={d.price}
+                            n_bedrooms={d.n_bedrooms}
+                            n_bathrooms={d.n_bathrooms}
+                            area_sqm={d.area_sqm}
+                            land_area_sqm={d.land_area_sqm}
+                            location={
+                                d.locations && d.locations.length !== 0
+                                    ? d.locations[0]
+                                    : 0
+                            }
+                            buy_rent={d.buy_rent}
+                            property_type={d.property_type}
+                        />
+                    );
+                })
+            }
+        </CardsContainer>
+    </div>
+
+    <script>
+        import type { CardData } from "./api/own_database/card_data";
+        import * as card_data_db from "./api/own_database/card_data";
+        import PropertyCard from "../components/web/PropertyCard";
+        if (!customElements.get("property-card")) {
+            customElements.define("property-card", PropertyCard);
+        }
+        import type { Index } from "../utils/types";
+        import type WiseHouseError from "../utils/wise_house_error";
+        /*****
+         * THESE ARE DEFINITIONS THAT HELP WITH TYPESCRIPT...
+         * If you are using Javascript, remove this section, and
+         * also remove all the exclamation marks and the types.
+         **** */
+        type msgType = "text" | "search_result";
+        type Message = {
+            content: any;
+            origin: string;
+            type: msgType;
+        };
+
+        type CarouselContent = {
+            msg: string;
+            results: Index[];
+        };
+
+        type SessionIdResponse = {
+            id: string;
+        };
+
+        class Carousel extends HTMLElement {
+            constructor() {
+                super();
+            }
+            connectedCallback() {
+                if (!this.shadowRoot) {
+                    this.attachShadow({ mode: "open" });
+                }
+                this.shadowRoot!.innerHTML = `
+                <style>
+                    div {
+                        display: flex;
+                        gap: 0.5em;
+                        overflow-x: scroll;
+                        padding-bottom: 2em;
+                    }
+                    div::-webkit-scrollbar {
+                        display: none;
+                    }
+                    div {
+                        -ms-overflow-style: none;  /* IE and Edge */
+                        scrollbar-width: none;  /* Firefox */
+                    }
+                </style>
+                <div>
+                    <slot></slot>
+                </div>
+                `;
+            }
+        }
+        if (!customElements.get("property-carousel")) {
+            customElements.define("property-carousel", Carousel);
+        }
+
+        /*****
+         * GATHER RELEVANT ELEMENTS FOR THE SEARCH
+         **** */
+        // the "search" buttonn
+        const searchButton = document.getElementById("search-button")!;
+        // The container of the messages
+        const msgCanvas = document.getElementById("messages-container")!;
+        // The bar itself
+        const searchBar = document.getElementById(
+            "search-bar",
+        )! as HTMLInputElement;
+
+        // Creates a container and puts the name of the author in it.
+        function getMsgContainer(origin: string): HTMLElement {
+            const ret = document.createElement("div");
+            const h = document.createElement("h1");
+            h.style.fontSize = "1em";
+            if (origin === "client") {
+                h.innerText = "You";
+            } else {
+                h.innerText = "Jo Wise";
+            }
+
+            ret.appendChild(h);
+            return ret;
+        }
+
+        function displayName(id: string | undefined): string | undefined {
+            if (!id) {
+                return undefined;
+            }
+            return id.replaceAll("_", " ");
+        }
+        // Pushes a Carousel of response into the container
+        function appendCarousel(container: HTMLElement, msg: CarouselContent) {
+            if (msg.results.length === 0) {
+                appendTextMsg(
+                    container,
+                    "Hmmm... there seems to be no properties matching your requirements. Do you want to try a different search?",
+                );
+                return;
+            }
+
+            // Add message
+            appendTextMsg(container, msg.msg);
+            // Append carousel
+            let mainDiv = document.createElement(
+                "property-carousel",
+            ) as Carousel;
+
+            msg.results.forEach(async (c: Index) => {
+                let property = document.createElement(
+                    "property-card",
+                ) as PropertyCard;
+                property._id = c.id;
+                property._title = c.title;
+
+                if (c.associated_model) {
+                    property._canonical = `/property/wh_hosted_${c.id}?session=${sessionID}`;
+                } else {
+                    property._canonical = `/property/self_hosted_${c.id}?session=${sessionID}`;
+                    // Query your own database for the data... we are simulating here
+                    const response = await card_data_db.GET({
+                        params: { id: c.id },
+                    });
+                    if (response.ok) {
+                        const cardData: CardData = await response.json();
+                        c.title = cardData.title;
+                        c.avatar = cardData.avatar;
+                    }
+
+                    c.canonical = `/property/self_hosted_${c.id}`;
+                    // Enable dynamic listing if available
+                    if (c.description) {
+                        c.canonical += `&sessionID=${sessionID}`;
+                    }
+                }
+                property._avatar = c.avatar;
+
+                property._price = c.price;
+                property._n_bedrooms = c.n_bedrooms;
+                property._n_bathrooms = c.n_bathrooms;
+                property._area_sqm = c.area_sqm;
+                property._land_arae_sqm = c.land_area_sqm;
+                if (c.locations && c.locations.length > 0) {
+                    property._location = displayName(c.locations[0]);
+                }
+                property._property_type = displayName(c.property_type);
+
+                mainDiv.appendChild(property);
+            });
+
+            container.appendChild(mainDiv);
+            msgCanvas.appendChild(container);
+        }
+
+        // Pushes a Text msg into the container
+        function appendTextMsg(container: HTMLElement, msg: string) {
+            let p = document.createElement("p");
+            p.innerText = msg;
+            container.appendChild(p);
+            msgCanvas.appendChild(container);
+        }
+
+        // Extends the Messages canvas
+        function deployMsgCanvas() {
+            msgCanvas.style.backgroundColor = "rgba(256, 256, 256, 0.83)";
+            msgCanvas.style.height = "70vh";
+        }
+
+        // Sends an message to Wise House
+        let sendingMsg = false;
+        async function sendMsg() {
+            // Don't send empty requests
+            const v = searchBar.value.trim();
+            if (v.length === 0) {
+                return;
+            }
+            searchBar.value = "";
+            searchBar.focus();
+            sendingMsg = true;
+            // Deploy canvas if not done already
+            deployMsgCanvas();
+            // Append user message
+            const container = getMsgContainer("client");
+            appendTextMsg(container, v);
+
+            /* GATHER FILTERS */
+
+            // Price restrictions
+            const minPriceInput = document.getElementById(
+                "min-price",
+            )! as HTMLInputElement;
+            const min_price = parseFloat(minPriceInput.value);
+            const maxPriceInput = document.getElementById(
+                "max-price",
+            )! as HTMLInputElement;
+            const max_price = parseFloat(maxPriceInput.value);
+
+            // Bedrooms restrictions
+            const minBedroomsInput = document.getElementById(
+                "min-bedrooms",
+            )! as HTMLInputElement;
+            const min_bedrooms = parseInt(minBedroomsInput.value);
+
+            // const maxBedroomsInput = document.getElementById(
+            //     "max-bedrooms",
+            // )! as HTMLInputElement;
+            // const max_bedrooms = parseInt(maxBedroomsInput.value);
+
+            // Bathroom restrictions
+            const minBathroomInput = document.getElementById(
+                "min-bathrooms",
+            )! as HTMLInputElement;
+            const min_bathrooms = parseInt(minBathroomInput.value);
+            // const maxBathroomInput = document.getElementById(
+            //     "max-bathrooms",
+            // )! as HTMLInputElement;
+            // const max_bathrooms = parseInt(maxBathroomInput.value);
+
+            // Contract
+            const contractInput = document.getElementById(
+                "contract",
+            )! as HTMLInputElement;
+            const buy_rent =
+                contractInput.value !== "" ? [contractInput.value] : [];
+
+            // Location
+            const locationInput = document.getElementById(
+                "location",
+            )! as HTMLInputElement;
+            const location = locationInput.value;
+            const locations: string[] = [];
+            if (location.length !== 0) {
+                locations.push(location);
+            }
+
+            // Assemble
+            const body = {
+                message: v,
+                type: "text", // we only accept text for now
+                locale: "en", // Supported values are 'en' and 'es'
+                session_id: sessionID,
+
+                /* OPTIONAL PARAMETERS */
+                /*
+                NOTE: Properties that has been not assigned this
+                information will NOT be matched, ever.
+            */
+
+                // Let's limit the number of results, avoiding things
+                // being too slow
+                max_search_results: 20,
+
+                min_price,
+                max_price,
+                min_bedrooms,
+
+                // Bathrooms restrictions
+                min_bathrooms,
+                /*
+            max_bedrooms,
+            max_bathrooms,
+            min_sqm: 30,
+            max_sqm: 12312,
+            min_land_sqm: 30,
+            max_land_sqm: 12312,
+            */
+
+                // Locations restriction
+                locations,
+
+                // Contract
+                // buy_rent,
+            };
+            // Send the message to Wise House
+            fetch("/api/search", {
+                method: "POST",
+                body: JSON.stringify(body),
+            })
+                .then(async (response) => {
+                    sendingMsg = false;
+                    if (response.ok) {
+                        const res: Message = await response.json();
+                        const c = getMsgContainer(res.origin);
+                        if (res.type === "text") {
+                            appendTextMsg(c, res.content.msg);
+                        } else if (res.type === "search_result") {
+                            appendCarousel(c, res.content);
+                        }
+                    } else {
+                        const error: WiseHouseError = await response.json();
+                        throw new Error(
+                            `error when '${error.moment}': ${error.msg}`,
+                        );
+                    }
+                })
+                .catch(async (error) => {
+                    throw new Error(JSON.stringify(error));
+                });
+        }
+        // Send messages when clicking "send"
+        searchButton.onclick = sendMsg;
+        // Send messages when pressing enter on the search bar.
+        searchBar.onkeyup = (e: any) => {
+            if (e.key === "Enter") {
+                sendMsg();
+            }
+        };
+
+        let sessionID: string | undefined = undefined;
+
+        window.onload = async () => {
+            // Initialize by getting a session ID.
+            fetch("/api/search", {
+                method: "GET",
+            })
+                .then(async (response) => {
+                    // Do something with the response
+                    if (response.ok) {
+                        const data: SessionIdResponse = await response.json();
+                        sessionID = data.id;
+                    } else {
+                        const error: WiseHouseError = await response.json();
+                        throw new Error(
+                            `error when '${error.moment}': ${error.msg}`,
+                        );
+                    }
+                })
+                .catch(async (e) => {
+                    // Catch any error
+                    const error = await e.json();
+                    throw new Error(JSON.stringify(error));
+                });
+        };
+    </script>
+</MainLayout>

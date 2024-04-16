@@ -1,0 +1,50 @@
+---
+import type { FullData } from "../api/own_database/full_data";
+import * as full_data_db from "../api/own_database/full_data";
+import getDynamicListing from "../../utils/dynamicListing";
+import type { PropertyData, Room } from "../../utils/types";
+import getListingData from "../../utils/getListingData";
+import ListingLayout from "../../layouts/ListingLayout.astro";
+
+export const prerender = false;
+
+// GET MODEL ID OR FAIL!
+const { property_id: propID } = Astro.params;
+if (!propID) {
+    throw new Error("Could not find property id.");
+}
+const sessionID: string | null = Astro.url.searchParams.get("session");
+
+const response = await full_data_db.GET({
+    params: { id: propID },    
+});
+let propertyData: FullData | undefined = undefined;
+if (response.ok) {
+    propertyData = await response.json();
+} else {
+    throw new Error("Could not get data for property ");
+}
+
+const description = propertyData?.description?.split("\\n")
+
+/* PROCESS DESCRIPTION */
+const dynamicDecription: string[] | undefined = await getDynamicListing(
+    propID,
+    sessionID,
+);
+---
+
+<ListingLayout
+    images={propertyData?.images}
+    title={propertyData?.title}
+    price={propertyData?.price}
+    area_sqm={propertyData?.area_sqm}
+    nstoreys={propertyData?.nstoreys}
+    n_bedrooms={propertyData?.n_bedrooms}
+    n_bathrooms={propertyData?.n_bathrooms}
+    dynamic_description={dynamicDecription}
+    description={description}
+    associated_model={undefined}
+    avatar={propertyData?.avatar}
+    storey_breakdown={undefined}
+/>

@@ -1,0 +1,97 @@
+---
+import SearchFilters from "./SearchFilters.astro";
+---
+
+<style>
+    div#search-wrap {
+        position: relative;
+        z-index: 2;
+        height: fit-content;
+        width: 80vw;
+        max-width: 80vw;
+        max-height: 80vh;
+        background-color: rgba(256, 256, 256, 0.75);
+        border-radius: 5px;
+        margin: 0.5em auto 0 auto;
+        transition: margin-top 0.4s ease-in-out;
+    }
+
+    #search-bar {
+        flex-grow: 1;
+        border: none;
+        background: transparent;
+        padding: 0.2em 1em 0.2em 1em;
+        resize: none;
+        line-height: normal; /* Reset line-height */
+        vertical-align: middle; /* Vertically align text */
+        font-size: 1em;
+    }
+    div#search-bar-wrap {
+        display: flex;
+        border-bottom-right-radius: inherit;
+    }
+    #search-button {
+        cursor: pointer;
+        background-color: black;
+        color: white;
+        text-align: center;
+        display: inline-block;
+        line-height: 2em;
+        margin: 0 0 0 0.3em;
+        padding: 0 1em;
+        border-bottom-right-radius: inherit;
+    }
+    #search-button span {
+        display: inline-block;
+        width: fit-content;
+    }
+    #search-button svg {
+        font-size:1.2em;
+        display: none;
+    }
+    div#search-wrap,
+    #search-bar:focus {
+        outline: none;
+    }
+
+    @media only screen and (max-width: 750px) {
+        div#search-wrap {
+            width: 95vw;
+            max-width: 95vw;
+            overflow: hidden;
+        }
+        #search-button span {
+            display: none;            
+        }
+        #search-button svg {
+            display: inline-block;
+        }
+    }
+</style>
+<div id="search-wrap">
+    <SearchFilters />
+    <div id="search-bar-wrap">
+        <input
+            type="text"
+            autocomplete="off"
+            name=""
+            placeholder="What are you looking for?"
+            id="search-bar"
+        />
+        <span id="search-button">
+            <span>SEARCH</span>
+            <svg
+                stroke="currentColor"
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 512 512"
+                height="1em"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+                ><path
+                    d="M337.509 305.372h-17.501l-6.571-5.486c20.791-25.232 33.922-57.054 33.922-93.257C347.358 127.632 283.896 64 205.135 64 127.452 64 64 127.632 64 206.629s63.452 142.628 142.225 142.628c35.011 0 67.831-13.167 92.991-34.008l6.561 5.487v17.551L415.18 448 448 415.086 337.509 305.372zm-131.284 0c-54.702 0-98.463-43.887-98.463-98.743 0-54.858 43.761-98.742 98.463-98.742 54.7 0 98.462 43.884 98.462 98.742 0 54.856-43.762 98.743-98.462 98.743z"
+                ></path></svg
+            >
+        </span>
+    </div>
+</div>

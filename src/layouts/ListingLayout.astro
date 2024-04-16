@@ -1,0 +1,305 @@
+---
+import MainLayout from "./MainLayout.astro";
+import RoomBreakdown from "../components/listings/RoomBreakdown.astro";
+import BedroomIcon from "../components/icons/BedroomIcon.astro";
+import BathroomIcon from "../components/icons/BathroomIcon.astro";
+import PriceIcon from "../components/icons/PriceIcon.astro";
+import parsePrice from "../utils/parse_price";
+import type { Room } from "../utils/types";
+
+interface Props {
+    images?: string[],
+    title?:string,
+    price?: number,
+    area_sqm?: number,
+    nstoreys?:number,
+    n_bedrooms?:number,
+    n_bathrooms?:number,
+    dynamic_description?:string[],
+    description?:string[],
+    associated_model?:string,
+    avatar?:string,
+    storey_breakdown?:Room[][]
+}
+
+const {
+    images = undefined,
+    title=undefined,
+    price=undefined,
+    area_sqm = undefined,
+    nstoreys=undefined,
+    n_bedrooms=undefined,
+    n_bathrooms=undefined,
+    dynamic_description=undefined,
+    description=undefined,
+    associated_model=undefined,
+    avatar=undefined,
+    storey_breakdown=undefined
+} = Astro.props
+
+const nBrokenDownStoreys = storey_breakdown?.length
+
+---
+<MainLayout>
+    <style>
+        div#main {
+            width: 100vw;
+            min-height: 100vh;
+        }
+
+        #main {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #header {
+            width: 100%;
+            height: 75vh;
+            display: flex;
+            flex-direction: column;
+            background-color: #dde3ea;
+        }
+
+        #big-image {
+            flex: 1;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        #images {
+            width: auto;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            overflow-x: scroll;
+            -ms-overflow-style: none; /* IE and Edge */
+            scrollbar-width: none; /* Firefox */
+        }
+        #images::-webkit-scrollbar {
+            display: none;
+        }
+
+        #content {
+            padding: 1em;
+            margin: 0 auto;
+            max-width: 1000px;
+        }
+        #intro h1 {
+            margin: 0.2em 0;
+        }
+        #images img {
+            margin: 2px;
+            max-height: 100%;
+            cursor: pointer;
+            border-radius: 0.4em;
+        }
+        p#price {
+            margin: 0;
+            margin-bottom: 0.3em;
+        }
+
+        div#size {
+            margin-bottom: 2em;
+        }
+
+        div#size > span {
+            margin-right: 1em;
+        }
+
+        div#details {
+            width: 100%;
+            display: flex;
+            margin: 0 auto;
+            justify-content: center;
+        }
+        div#left {
+            max-width: 600px;
+            min-width: 320px;
+            margin-right: 2em;
+            flex-grow: 1;
+        }
+
+        #chat {
+            height: 650px;
+            width: 280px;
+            border: none;
+        }
+        div#right {
+            width: fit-content;
+            min-width: fit-content;
+            padding: 0.4em;
+            border-radius: 0.5em;
+            box-shadow:
+                0 3px 6px rgba(0, 0, 0, 0.16),
+                0 3px 6px rgba(0, 0, 0, 0.23);
+        }
+        span.size-icon {
+            font-size: 1.2em;
+        }
+        div.section {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            margin-bottom: 3em;
+        }
+        div.section > p:first-child {
+            font-weight: bold;
+        }
+        @media (max-width: 720px) {
+            div#details {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+    <div id="main">
+        <div id="header">
+            <div id="big-image"></div>
+            {images &&
+                <div id="images">
+                {
+                    images?.map((src: string) => {
+                        return <img src={src} />;
+                    })
+                }
+            </div>
+            }
+        </div>
+        <div id="content">
+            <div id="intro">
+                {title &&
+                     <h1>{title}</h1>
+                }
+                {
+                    price && (
+                        <p id="price">
+                            <span class="size-icon">
+                                <PriceIcon />
+                            </span>
+                            {parsePrice(price)}
+                        </p>
+                    )
+                }
+                <div id="size">
+                    {
+                        area_sqm && (
+                            <span> {Math.round(area_sqm)} m² </span>
+                        )
+                    }
+                    {
+                        nstoreys && (
+                            <span>
+                                {nstoreys}
+                                {nstoreys === 1 ? "storey" : "storeys"}
+                            </span>
+                        )
+                    }
+
+                    {
+                        n_bedrooms && (
+                            <span>
+                                <span class="size-icon">
+                                    <BedroomIcon />
+                                </span>
+                                {n_bedrooms}
+                            </span>
+                        )
+                    }
+                    {
+                        n_bathrooms && (
+                            <span>
+                                <span class="size-icon">
+                                    <BathroomIcon />
+                                </span>
+                                {n_bathrooms}
+                            </span>
+                        )
+                    }
+                </div>
+                <div id="details">
+                    <div id="left">
+                        {
+                            dynamic_description && (
+                                <div class="section">
+                                    <p>Reasons you will love this property</p>
+                                    <div>
+                                        {dynamic_description.map((d: string) => {
+                                            return <p>{d}</p>;
+                                        })}
+                                    </div>
+                                </div>
+                            )
+                        }
+                        {
+                            description && (
+                                <div class="section">
+                                    <p>About the property</p>
+                                    <div>
+                                        {description.map((d: string) => {
+                                            return <p>{d}</p>;
+                                        })}
+                                    </div>
+                                </div>
+                            )
+                        }
+                        {
+                            nBrokenDownStoreys === 1 && (
+                                <div class="section">
+                                    <p>Property Layout</p>
+                                    <RoomBreakdown
+                                        rooms={storey_breakdown![0]}
+                                    />
+                                </div>
+                            )
+                        }
+                        {
+                            nBrokenDownStoreys && nBrokenDownStoreys > 1 && (
+                                <div class="section">
+                                    <p>
+                                        Property layout
+                                    </p>
+                                    <div>
+                                        {storey_breakdown!.map(
+                                            (rooms: Room[], storey: number) => {
+                                                return (
+                                                    <div>
+                                                        <small style="font-weight:bold;">
+                                                            Storey {storey + 1}
+                                                        </small>
+                                                        <RoomBreakdown
+                                                            rooms={rooms}
+                                                        />
+                                                    </div>
+                                                );
+                                            },
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        }
+                    </div>
+                    {
+                        associated_model &&
+                        <div id="right">
+                            <iframe
+                                id="chat"
+                                src=`https://wisehouse.app/chat/${associated_model}?no3d&notitle&bg=fff`
+                            ></iframe>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <script define:vars={{ avatar }}>
+        const bigImage = document.getElementById("big-image");
+        bigImage.style.backgroundImage = `url("${avatar}")`;
+
+        const imageGallery = document.getElementById("images");
+        if(imageGallery){
+            imageGallery.childNodes.forEach((v) => {
+                v.onclick = () => {
+                    bigImage.style.backgroundImage = `url("${v.src}")`;
+                };
+            });
+        }
+    </script>
+</MainLayout>

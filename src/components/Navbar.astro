@@ -1,0 +1,103 @@
+---
+
+---
+
+<style>
+    div#header {
+        padding: 0.5em 90px;
+    }
+    div#navbar-buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        box-sizing: border-box;
+        transition: left 0.2s ease-in-out;
+    }
+    span#navbar-menu-icon {
+        font-size: 20px;
+    }
+    #navbar-menu-icon,
+    #navbar-close-menu-icon {
+        display: none;
+        cursor: pointer;
+        padding: 0.5em;
+    }
+    #navbar-close-menu-icon{
+        font-size: 2em;
+    }
+
+    @media only screen and (max-width: 750px) {
+        div#header {
+            padding: 0.5em;
+        }
+        #navbar-menu-icon {
+            display: block;
+        }
+        div#navbar-buttons {
+            flex-direction: column;
+            justify-content: center;
+            position: fixed;
+            height: 100vh;
+            width: 100vw;
+            text-align: center;
+            top: 0;
+            left: 110vw;
+            z-index: 10;
+            background-color: white;
+            box-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.12),
+                0 1px 2px rgba(0, 0, 0, 0.24);
+        }
+        #navbar-buttons span {
+            display: block;
+            padding: 0.8em;
+            margin: 1em 0;
+        }
+    }
+</style>
+<div id="header">
+    <span id="navbar-menu-icon">
+        <svg
+            stroke="currentColor"
+            fill="currentColor"
+            stroke-width="0"
+            viewBox="0 0 24 24"
+            height="1em"
+            width="1em"
+            xmlns="http://www.w3.org/2000/svg"
+            ><path fill="none" d="M0 0h24v24H0z"></path><path
+                d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg
+        >
+    </span>
+    <div id="navbar-buttons">
+        <span>Home</span>
+        <span>About us</span>
+        <span>Find a property</span>
+        <span>Contact</span>
+        <span id="navbar-close-menu-icon">
+            <svg
+                stroke="currentColor"
+                fill="currentColor"
+                stroke-width="0"
+                viewBox="0 0 512 512"
+                height="1em"
+                width="1em"
+                xmlns="http://www.w3.org/2000/svg"
+                ><path
+                    d="M405 136.798L375.202 107 256 226.202 136.798 107 107 136.798 226.202 256 107 375.202 136.798 405 256 285.798 375.202 405 405 375.202 285.798 256z"
+                ></path></svg
+            >
+        </span>
+    </div>
+</div>
+<script>
+    const menuButton = document.getElementById("navbar-menu-icon")!;
+    const navbarButtons = document.getElementById("navbar-buttons")!;
+    const closeButton = document.getElementById("navbar-close-menu-icon")!;
+    menuButton.onclick = () => {
+        navbarButtons.style.left = "0";        
+    };
+    closeButton.onclick = () => {
+        navbarButtons.style.left = "110vw";        
+    };
+</script>
